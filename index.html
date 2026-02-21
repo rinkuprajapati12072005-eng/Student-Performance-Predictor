@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Performance Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎓 Student Performance Predictor</h1>
+            <p>AICTE Azure Internship | Random Forest ML Model (92%+ Accuracy)</p>
+        </header>
+        
+        <form id="predictForm">
+            <div class="input-group">
+                <label>Age:</label>
+                <input type="number" name="age" min="15" max="25" value="18" required>
+            </div>
+            <div class="input-group">
+                <label>Weekly Study Hours:</label>
+                <input type="number" name="study_hours" min="0" max="20" value="7" required>
+            </div>
+            <div class="input-group">
+                <label>Absences (Last Semester):</label>
+                <input type="number" name="absences" min="0" max="30" value="2" required>
+            </div>
+            <div class="input-group">
+                <label>Parent Education:</label>
+                <select name="parent_education" required>
+                    <option value="high school">High School</option>
+                    <option value="some college">Some College</option>
+                    <option value="bachelor">Bachelor's</option>
+                    <option value="master">Master's</option>
+                </select>
+            </div>
+            <button type="submit">🔮 Predict Performance</button>
+        </form>
+        
+        <div id="result" class="result-hidden"></div>
+    </div>
+
+    <script>
+        document.getElementById('predictForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const button = e.target.querySelector('button');
+            button.textContent = 'Predicting...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch('/predict', { 
+                    method: 'POST', 
+                    body: formData 
+                });
+                const data = await response.json();
+                
+                const resultDiv = document.getElementById('result');
+                resultDiv.className = 'result-visible';
+                
+                if (data.error) {
+                    resultDiv.innerHTML = `<h2>❌ Error</h2><p>${data.error}</p>`;
+                } else {
+                    const isPass = data.result === 'PASS';
+                    resultDiv.innerHTML = `
+                        <h2>${isPass ? '✅ PASS' : '❌ FAIL'}</h2>
+                        <div class="confidence">Confidence: <strong>${data.confidence}</strong></div>
+                        <div class="probs">
+                            <span>Pass: ${data.pass_prob}</span>
+                            <span>Fail: ${data.fail_prob}</span>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = '<h2>❌ Network Error</h2>';
+            }
+            
+            button.textContent = '🔮 Predict Performance';
+            button.disabled = false;
+        });
+    </script>
+</body>
+</html>
