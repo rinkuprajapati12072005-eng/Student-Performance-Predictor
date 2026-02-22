@@ -1,7 +1,7 @@
 Student Performance Predictor
 AICTE Microsoft Azure Internship
 
-Live Demo: http://127.0.0.1:5002
+Live Demo: http://127.0.0.1:5000
 
 Features:
 - 92% accurate ML predictions
